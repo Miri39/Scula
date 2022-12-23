@@ -64,6 +64,49 @@ public class AssignmentsController
             DeadLine = assignment.DeadLine
         };
     }
+
+    [HttpDelete("{id}")]
+    public AssignmentResponse Delete([FromRoute] string id)
+    {
+        var assignment = _mockDb.FirstOrDefault(x => x.Id == id);
+        if (assignment is null)
+        {
+            return null;
+        }
+
+        _mockDb.Remove(assignment);
+        return new AssignmentResponse
+        {
+            Id = assignment.Id,
+            Subject = assignment.Subject,
+            Description = assignment.Description,
+            DeadLine = assignment.DeadLine
+        };
+    }
+    
+    [HttpPatch("{id}") ]
+    
+    public AssignmentResponse Update([FromRoute] string id, AssignmentRequest request)
+    {
+        var assignment = _mockDb.FirstOrDefault(x => x.Id == id);
+        if (assignment is null)
+        {
+            return null;
+        }
+
+        assignment.Updated = DateTime.UtcNow;
+        assignment.Subject = request.Subject;
+        assignment.Description = request.Description;
+        assignment.DeadLine = request.DeadLine;
+
+        return new AssignmentResponse
+        {
+            Id = assignment.Id,
+            Subject = assignment.Subject,
+            Description = assignment.Description,
+            DeadLine = assignment.DeadLine
+        };
+    }
     // fct de delete si de update -> tema
     //HttpDelete HttpPatch 
     //delete cauta o variabila, dupa id o verifica si o sterge
