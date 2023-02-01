@@ -21,7 +21,7 @@ public class TestsController
             Id = Guid.NewGuid().ToString(),
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,
-            Subject = request.Subject,
+            Title = request.Subject,
             TestDate = request.TestDate
         };
         _mockDb.Add(test);
@@ -29,7 +29,7 @@ public class TestsController
         return new TestResponse()
         {
             Id = test.Id,
-            Subject = test.Subject,
+            Subject = test.Title,
             TestDate = test.TestDate
         };
     }
@@ -41,12 +41,12 @@ public class TestsController
             test => new TestResponse()
             {
                 Id = test.Id,
-                Subject = test.Subject,
+                Subject = test.Title,
                 TestDate = test.TestDate
             }).ToList();
     }
 
-    [HttpGet("id")]
+    [HttpGet("{id}")]
     public TestResponse Get([FromRoute] string id)
     {
         var test = _mockDb.FirstOrDefault(x => x.Id == id);
@@ -59,7 +59,7 @@ public class TestsController
         return new TestResponse
         {
             Id = test.Id,
-            Subject = test.Subject,
+            Subject = test.Title,
             TestDate = test.TestDate
         };
     }
@@ -78,7 +78,7 @@ public class TestsController
         return new TestResponse
         {
             Id = test.Id,
-            Subject = test.Subject,
+            Subject = test.Title,
             TestDate = test.TestDate
         };
     }
@@ -92,14 +92,14 @@ public class TestsController
             return null;
         }
 
-        test.Subject = request.Subject;
+        test.Title = request.Subject;
         test.TestDate = test.TestDate;
         test.Updated = DateTime.UtcNow;
         
         return new TestResponse
         {
             Id = test.Id,
-            Subject = test.Subject,
+            Subject = test.Title,
             TestDate = test.TestDate
         };
     }

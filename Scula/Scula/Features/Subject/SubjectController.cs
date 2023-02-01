@@ -47,7 +47,7 @@ public class SubjectController
             }).ToList();
     }
 
-    [HttpGet("id")]
+    [HttpGet("{id}")]
     public SubjectResponse Get([FromRoute] string id)
     {
         var subject = _mockDb.FirstOrDefault(x => x.Id == id);
