@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Scula.DataBase;
 using Scula.Features.Tests.Models;
 using Scula.Features.Tests.Views;
 
@@ -7,100 +9,114 @@ namespace Scula.Features.Tests;
 [ApiController]
 [Route ("tests")]
 
-public class TestsController
+public class TestsController : ControllerBase
 {
-    private static List<TestModel> _mockDb = new List<TestModel>();
-    
-    public TestsController() {}
+    private readonly AppDbContext _dbContext;
+
+    public TestsController(AppDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
 
     [HttpPost]
-    public TestResponse Add(TestRequest request)
+    public async Task<TestResponse> Add(TestRequest request)
     {
         var test = new TestModel
         {
             Id = Guid.NewGuid().ToString(),
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,
-            Title = request.Subject,
-            TestDate = request.TestDate
+            SubjectId = request.Subject,
+            Grade = request.Grade,
+            Description = request.Description
         };
-        _mockDb.Add(test);
+        var response = await _dbContext.AddAsync(test);
+        await _dbContext.SaveChangesAsync();
 
         return new TestResponse()
         {
             Id = test.Id,
-            Subject = test.Title,
-            TestDate = test.TestDate
+            Subject = test.SubjectId,
+            Grade = test.Grade,
+            Description = test.Description
         };
     }
 
     [HttpGet]
-    public IEnumerable<TestResponse> Get()
+    public async Task<IEnumerable<TestResponse>> Get()
     {
-        return _mockDb.Select(
+        var entities = await _dbContext.Tests.ToListAsync();
+        return entities.Select(
             test => new TestResponse()
-            {
-                Id = test.Id,
-                Subject = test.Title,
-                TestDate = test.TestDate
-            }).ToList();
+                {
+                    Id = test.Id,
+                    Subject = test.SubjectId,
+                    Description = test.Description,
+                    Grade = test.Grade
+                });
     }
 
     [HttpGet("{id}")]
-    public TestResponse Get([FromRoute] string id)
+    public async Task<ActionResult<TestResponse>> Get([FromRoute] string id)
     {
-        var test = _mockDb.FirstOrDefault(x => x.Id == id);
+        var entity = await _dbContext.Tests.FirstOrDefaultAsync(x => x.Id == id);
 
-        if (test is null)
+        if (entity is null)
         {
-            return null;
+            return NotFound();
         }
 
         return new TestResponse
         {
-            Id = test.Id,
-            Subject = test.Title,
-            TestDate = test.TestDate
+            Id = entity.Id,
+            Subject = entity.SubjectId,
+            Description = entity.Description,
+            Grade = entity.Grade
         };
     }
 
     [HttpDelete("{id}")]
-    public TestResponse Delete([FromRoute] string id)
+    public async Task<ActionResult<TestResponse>> Delete([FromRoute] string id)
     {
-        var test = _mockDb.FirstOrDefault(x => x.Id == id);
-        
-        if(test is null)
+        var entity = await _dbContext.Tests.FirstOrDefaultAsync(x => x.Id == id);
+
+        if(entity is null)
         {
-            return null;
+            return NotFound();
         }
 
-        _mockDb.Remove(test);
+        _dbContext.Remove(entity);
+        await _dbContext.SaveChangesAsync();
+        
         return new TestResponse
         {
-            Id = test.Id,
-            Subject = test.Title,
-            TestDate = test.TestDate
+            Id = entity.Id,
+            Subject = entity.SubjectId,
+            Description = entity.Description,
+            Grade = entity.Grade
         };
     }
     [HttpPatch("{id}")]
-    public TestResponse Update([FromRoute] string id, TestRequest request)
+    public async Task<ActionResult<TestResponse>> Update([FromRoute] string id, TestRequest request)
     {
-        var test = _mockDb.FirstOrDefault(x => x.Id == id);
-        
-        if(test is null)
+        var entity = await _dbContext.Tests.FirstOrDefaultAsync(x => x.Id == id);
+
+        if(entity is null)
         {
-            return null;
+            return NotFound();
         }
 
-        test.Title = request.Subject;
-        test.TestDate = test.TestDate;
-        test.Updated = DateTime.UtcNow;
+        entity.SubjectId = request.Subject;
+        entity.Description = request.Description;
+        entity.Grade = request.Grade;
+        entity.Updated = DateTime.UtcNow;
         
         return new TestResponse
         {
-            Id = test.Id,
-            Subject = test.Title,
-            TestDate = test.TestDate
+            Id = entity.Id,
+            Subject = entity.SubjectId, 
+            Description= entity.Description,
+            Grade = entity.Grade
         };
     }
 }

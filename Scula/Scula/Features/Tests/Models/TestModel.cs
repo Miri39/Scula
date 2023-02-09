@@ -5,8 +5,10 @@ namespace Scula.Features.Tests.Models;
 
 public class TestModel : Model
 {
-    public string Title { get; set; }
+    public string SubjectId { get; set; }
 
-    public DateTime TestDate { get; set; }
-    public List<SubjectModel> Subjects { get; set; }
+    public string Description { get; set; }
+    
+    public double Grade { get; set; }
+    
 }

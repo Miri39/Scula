@@ -6,5 +6,7 @@ public class TestResponse
     
     public string Subject { get; set; }
     
-    public DateTime TestDate { get; set; }
+    public string Description { get; set; }    
+    
+    public double Grade { get; set; }
 }

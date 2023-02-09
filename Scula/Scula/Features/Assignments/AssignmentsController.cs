@@ -28,7 +28,7 @@ public class AssignmentsController : ControllerBase
             Id = Guid.NewGuid().ToString(),
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,
-            Subject = request.Subject,
+            SubjectId = request.Subject,
             Description = request.Description,
             DeadLine = request.DeadLine
         };
@@ -39,7 +39,7 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = response.Entity.Id,
-            Subject = response.Entity.Subject,
+            Subject = response.Entity.SubjectId,
             Description = response.Entity.Description,
             DeadLine = response.Entity.DeadLine
         };
@@ -53,7 +53,7 @@ public class AssignmentsController : ControllerBase
             assignment => new AssignmentResponse()
             {
                 Id = assignment.Id,
-                Subject = assignment.Subject,
+                Subject = assignment.SubjectId,
                 Description = assignment.Description,
                 DeadLine = assignment.DeadLine
             });
@@ -70,7 +70,7 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = entity.Id,
-            Subject = entity.Subject,
+            Subject = entity.SubjectId,
             Description = entity.Description,
             DeadLine = entity.DeadLine
         };
@@ -91,7 +91,7 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = entity.Id,
-            Subject = entity.Subject,
+            Subject = entity.SubjectId,
             Description = entity.Description,
             DeadLine = entity.DeadLine
         };
@@ -109,7 +109,7 @@ public class AssignmentsController : ControllerBase
         }
 
         entity.Updated = DateTime.UtcNow;
-        entity.Subject = request.Subject;
+        entity.SubjectId = request.Subject;
         entity.Description = request.Description;
         entity.DeadLine = request.DeadLine;
 
@@ -118,7 +118,7 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = entity.Id,
-            Subject = entity.Subject,
+            Subject = entity.SubjectId,
             Description = entity.Description,
             DeadLine = entity.DeadLine
         };

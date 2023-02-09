@@ -11,6 +11,4 @@ public class SubjectModel : Model
     public string ProfessorMail { get; set; }
 
     public List<Double> Grades { get; set; }
-    public AssignmentModel Assignment { get; set; }
-    public List<TestModel> Tests { get; set; }
 }

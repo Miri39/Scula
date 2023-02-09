@@ -9,6 +9,6 @@ public class AssignmentRequest
     [Required] public string Description { get; set; }
     
     [Required] public DateTime DeadLine { get; set; }
-    
-    
+
+    [Required] public double Grade { get; set; }
 }

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Scula.DataBase;
 using Scula.Features.Subject.Models;
 using Scula.Features.Subject.Views;
 
@@ -7,14 +9,19 @@ namespace Scula.Features.Subject;
 [ApiController]
 [Route("subjects")]
 
-public class SubjectController
+public class SubjectController : ControllerBase
 {
-    private static List<SubjectModel> _mockDb = new List<SubjectModel>();
+    private readonly AppDbContext _dbContext;
 
-    [HttpPost]
-    public SubjectResponse Add(SubjectRequest request)
+    public SubjectController(AppDbContext dbContext)
     {
-        var subject = new SubjectModel()
+        _dbContext = dbContext;
+    }
+    
+    [HttpPost]
+    public async Task<SubjectResponse> Add(SubjectRequest request)
+    {
+        var subject = new SubjectModel
         {
             Id = Guid.NewGuid().ToString(),
             Created = DateTime.UtcNow,
@@ -23,87 +30,91 @@ public class SubjectController
             ProfessorMail = request.ProfessorMail,
             Grades = request.grades
         };
-        _mockDb.Add(subject);
+        var response = await _dbContext.AddAsync(subject);
+        await _dbContext.SaveChangesAsync();
 
-        return new SubjectResponse()
+        return new SubjectResponse
         {
-            Id = subject.Id,
-            Name = subject.Name,
-            ProfessorMail = subject.ProfessorMail,
-            Grades = subject.Grades
+            Id = response.Entity.Id,
+            Name = response.Entity.Name,
+            ProfessorMail = response.Entity.ProfessorMail,
+            Grades = response.Entity.Grades
         };
     }
 
     [HttpGet]
-    public IEnumerable<SubjectResponse> Get()
+    public async Task<IEnumerable<SubjectResponse>> Get()
     {
-        return _mockDb.Select(
+        var entities = await _dbContext.Subjects.ToListAsync();
+        return entities.Select(
             subject => new SubjectResponse()
             {
                 Id = subject.Id,
                 Name = subject.Name,
                 ProfessorMail = subject.ProfessorMail,
                 Grades = subject.Grades
-            }).ToList();
+            });
     }
 
     [HttpGet("{id}")]
-    public SubjectResponse Get([FromRoute] string id)
+    public async Task<ActionResult<SubjectResponse>> Get([FromRoute] string id)
     {
-        var subject = _mockDb.FirstOrDefault(x => x.Id == id);
-        if (subject is null)
+        var entity = await _dbContext.Subjects.FirstOrDefaultAsync(x => x.Id == id);
+        if (entity is null)
         {
-            return null;
+            return NotFound();
         }
 
         return new SubjectResponse()
         {
-            Id = subject.Id,
-            Name = subject.Name,
-            ProfessorMail = subject.ProfessorMail,
-            Grades = subject.Grades
+            Id = entity.Id,
+            Name = entity.Name,
+            ProfessorMail = entity.ProfessorMail,
+            Grades = entity.Grades
         };
     }
     
     [HttpDelete("{id}")]
-    public SubjectResponse Delete([FromRoute] string id)
+    public async Task<ActionResult<SubjectResponse>> Delete([FromRoute] string id)
     {
-        var subject = _mockDb.FirstOrDefault(x => x.Id == id);
-        if (subject is null)
+        var entity = await _dbContext.Subjects.FirstOrDefaultAsync(x => x.Id == id);
+        if (entity is null)
         {
-            return null;
+            return NotFound();
         }
 
-        _mockDb.Remove(subject);
+        _dbContext.Remove(entity);
+        await _dbContext.SaveChangesAsync();
+        
         return new SubjectResponse()
         {
-            Id = subject.Id,
-            Name = subject.Name,
-            ProfessorMail = subject.ProfessorMail,
-            Grades = subject.Grades
+            Id = entity.Id,
+            Name = entity.Name,
+            ProfessorMail = entity.ProfessorMail,
+            Grades = entity.Grades
         };
     }
 
     [HttpPatch("{id}")]
-    public SubjectResponse Update([FromRoute] string id, SubjectRequest request)
+    public async Task<ActionResult<SubjectResponse>> Update([FromRoute] string id, SubjectRequest request)
     {
-        var subject = _mockDb.FirstOrDefault(x => x.Id == id);
-        if (subject is null)
+        var entity = await _dbContext.Subjects.FirstOrDefaultAsync(x => x.Id == id);
+        if (entity is null)
         {
-            return null;
+            return NotFound();
         }
 
-        subject.Name = request.Name;
-        subject.ProfessorMail = request.ProfessorMail;
-        subject.Grades = request.grades;
-        subject.Updated = DateTime.UtcNow;
+        entity.Name = request.Name;
+        entity.ProfessorMail = request.ProfessorMail;
+        entity.Grades = request.grades;
+        entity.Updated = DateTime.UtcNow;
         
         return new SubjectResponse()
         {
-            Id = subject.Id,
-            Name = subject.Name,
-            ProfessorMail = subject.ProfessorMail,
-            Grades = subject.Grades
+            Id = entity.Id,
+            Name = entity.Name,
+            ProfessorMail = entity.ProfessorMail,
+            Grades = entity.Grades
         };
     }
 }

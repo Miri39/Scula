@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Scula.DataBase;
@@ -12,9 +13,11 @@ using Scula.DataBase;
 namespace Scula.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230209115200_subject")]
+    partial class subject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +41,7 @@ namespace Scula.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("SubjectId")
+                    b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -53,6 +56,10 @@ namespace Scula.Migrations
             modelBuilder.Entity("Scula.Features.Subject.Models.SubjectModel", b =>
                 {
                     b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("AssignmentId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Created")
@@ -75,6 +82,8 @@ namespace Scula.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignmentId");
+
                     b.ToTable("Subjects");
                 });
 
@@ -86,14 +95,10 @@ namespace Scula.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("TestDate")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<double>("Grade")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("SubjectId")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -102,7 +107,48 @@ namespace Scula.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tests");
+                    b.ToTable("TestModel");
+                });
+
+            modelBuilder.Entity("SubjectModelTestModel", b =>
+                {
+                    b.Property<string>("SubjectsId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TestsId")
+                        .HasColumnType("text");
+
+                    b.HasKey("SubjectsId", "TestsId");
+
+                    b.HasIndex("TestsId");
+
+                    b.ToTable("SubjectModelTestModel");
+                });
+
+            modelBuilder.Entity("Scula.Features.Subject.Models.SubjectModel", b =>
+                {
+                    b.HasOne("Scula.Features.Assignments.Models.AssignmentModel", "Assignment")
+                        .WithMany()
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+                });
+
+            modelBuilder.Entity("SubjectModelTestModel", b =>
+                {
+                    b.HasOne("Scula.Features.Subject.Models.SubjectModel", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Scula.Features.Tests.Models.TestModel", null)
+                        .WithMany()
+                        .HasForeignKey("TestsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
