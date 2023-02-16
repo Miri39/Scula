@@ -5,7 +5,7 @@ namespace Scula.Features.Tests.Models;
 
 public class TestModel : Model
 {
-    public string SubjectId { get; set; }
+    public SubjectModel Subject { get; set; }
 
     public string Description { get; set; }
     

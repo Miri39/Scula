@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scula.DataBase;
+using Scula.Features.Subject.Views;
 using Scula.Features.Tests.Models;
 using Scula.Features.Tests.Views;
 
@@ -19,14 +20,17 @@ public class TestsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<TestResponse> Add(TestRequest request)
+    public async Task<ActionResult<TestResponse>> Add(string subjectName, TestRequest request)
     {
+        var subject = await _dbContext.Subjects
+            .FirstOrDefaultAsync(x => subjectName == x.Name);
+        if (subject is null) return NotFound("Subject does not exist");
         var test = new TestModel
         {
             Id = Guid.NewGuid().ToString(),
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,
-            SubjectId = request.Subject,
+            Subject = subject,
             Grade = request.Grade,
             Description = request.Description
         };
@@ -36,9 +40,14 @@ public class TestsController : ControllerBase
         return new TestResponse()
         {
             Id = test.Id,
-            Subject = test.SubjectId,
             Grade = test.Grade,
-            Description = test.Description
+            Description = test.Description,
+            Subject = new SubjectResponse()
+            {
+                Id = test.Subject.Id,
+                Name = test.Subject.Name,
+                ProfessorMail = test.Subject.ProfessorMail
+            }
         };
     }
 
@@ -50,9 +59,14 @@ public class TestsController : ControllerBase
             test => new TestResponse()
                 {
                     Id = test.Id,
-                    Subject = test.SubjectId,
                     Description = test.Description,
-                    Grade = test.Grade
+                    Grade = test.Grade,
+                    Subject = new SubjectResponse()
+                    {
+                        Id = test.Subject.Id,
+                        Name = test.Subject.Name,
+                        ProfessorMail = test.Subject.ProfessorMail
+                    }
                 });
     }
 
@@ -69,9 +83,14 @@ public class TestsController : ControllerBase
         return new TestResponse
         {
             Id = entity.Id,
-            Subject = entity.SubjectId,
             Description = entity.Description,
-            Grade = entity.Grade
+            Grade = entity.Grade,
+            Subject = new SubjectResponse()
+            {
+                Id = entity.Subject.Id,
+                Name = entity.Subject.Name,
+                ProfessorMail = entity.Subject.ProfessorMail
+            }
         };
     }
 
@@ -91,9 +110,14 @@ public class TestsController : ControllerBase
         return new TestResponse
         {
             Id = entity.Id,
-            Subject = entity.SubjectId,
             Description = entity.Description,
-            Grade = entity.Grade
+            Grade = entity.Grade,
+            Subject = new SubjectResponse()
+            {
+                Id = entity.Subject.Id,
+                Name = entity.Subject.Name,
+                ProfessorMail = entity.Subject.ProfessorMail
+            }
         };
     }
     [HttpPatch("{id}")]
@@ -105,18 +129,24 @@ public class TestsController : ControllerBase
         {
             return NotFound();
         }
-
-        entity.SubjectId = request.Subject;
+        
         entity.Description = request.Description;
         entity.Grade = request.Grade;
         entity.Updated = DateTime.UtcNow;
         
+        await _dbContext.SaveChangesAsync();
+        
         return new TestResponse
         {
             Id = entity.Id,
-            Subject = entity.SubjectId, 
             Description= entity.Description,
-            Grade = entity.Grade
+            Grade = entity.Grade,
+            Subject = new SubjectResponse()
+            {
+                Id = entity.Subject.Id,
+                Name = entity.Subject.Name,
+                ProfessorMail = entity.Subject.ProfessorMail
+            }
         };
     }
 }

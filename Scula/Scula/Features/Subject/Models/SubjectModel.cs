@@ -9,6 +9,8 @@ public class SubjectModel : Model
     public string Name { get; set; }
 
     public string ProfessorMail { get; set; }
-
-    public List<Double> Grades { get; set; }
+    
+    public List<AssignmentModel> Assignments { get; set; }
+    
+    public List<TestModel> Tests { get; set; }
 }

@@ -27,8 +27,7 @@ public class SubjectController : ControllerBase
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,
             Name = request.Name,
-            ProfessorMail = request.ProfessorMail,
-            Grades = request.grades
+            ProfessorMail = request.ProfessorMail
         };
         var response = await _dbContext.AddAsync(subject);
         await _dbContext.SaveChangesAsync();
@@ -37,8 +36,7 @@ public class SubjectController : ControllerBase
         {
             Id = response.Entity.Id,
             Name = response.Entity.Name,
-            ProfessorMail = response.Entity.ProfessorMail,
-            Grades = response.Entity.Grades
+            ProfessorMail = response.Entity.ProfessorMail
         };
     }
 
@@ -51,8 +49,7 @@ public class SubjectController : ControllerBase
             {
                 Id = subject.Id,
                 Name = subject.Name,
-                ProfessorMail = subject.ProfessorMail,
-                Grades = subject.Grades
+                ProfessorMail = subject.ProfessorMail
             });
     }
 
@@ -69,8 +66,7 @@ public class SubjectController : ControllerBase
         {
             Id = entity.Id,
             Name = entity.Name,
-            ProfessorMail = entity.ProfessorMail,
-            Grades = entity.Grades
+            ProfessorMail = entity.ProfessorMail
         };
     }
     
@@ -90,8 +86,7 @@ public class SubjectController : ControllerBase
         {
             Id = entity.Id,
             Name = entity.Name,
-            ProfessorMail = entity.ProfessorMail,
-            Grades = entity.Grades
+            ProfessorMail = entity.ProfessorMail
         };
     }
 
@@ -106,15 +101,13 @@ public class SubjectController : ControllerBase
 
         entity.Name = request.Name;
         entity.ProfessorMail = request.ProfessorMail;
-        entity.Grades = request.grades;
         entity.Updated = DateTime.UtcNow;
         
         return new SubjectResponse()
         {
             Id = entity.Id,
             Name = entity.Name,
-            ProfessorMail = entity.ProfessorMail,
-            Grades = entity.Grades
+            ProfessorMail = entity.ProfessorMail
         };
     }
 }

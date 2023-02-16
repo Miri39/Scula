@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Scula.DataBase;
 using Scula.Features.Assignments.Models;
 using Scula.Features.Assignments.Views;
+using Scula.Features.Subject.Views;
 
 namespace Scula.Features.Assignments;
 
@@ -21,14 +22,17 @@ public class AssignmentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<AssignmentResponse> Add(AssignmentRequest request)
+    public async Task<ActionResult<AssignmentResponse>> Add(string subjectName, AssignmentRequest request)
     {
-        var assignment = new AssignmentModel //mapping
+        var subject = await _dbContext.Subjects.FirstOrDefaultAsync(x => subjectName == x.Name);
+        if (subject is null) return NotFound("Subject does not exist");
+        
+        var assignment = new AssignmentModel
         {
             Id = Guid.NewGuid().ToString(),
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,
-            SubjectId = request.Subject,
+            Subject = subject,
             Description = request.Description,
             DeadLine = request.DeadLine
         };
@@ -39,7 +43,6 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = response.Entity.Id,
-            Subject = response.Entity.SubjectId,
             Description = response.Entity.Description,
             DeadLine = response.Entity.DeadLine
         };
@@ -53,9 +56,15 @@ public class AssignmentsController : ControllerBase
             assignment => new AssignmentResponse()
             {
                 Id = assignment.Id,
-                Subject = assignment.SubjectId,
                 Description = assignment.Description,
-                DeadLine = assignment.DeadLine
+                Grade = assignment.Grade,
+                DeadLine = assignment.DeadLine,
+                Subject = new SubjectResponse()
+                {
+                    Id = assignment.Subject.Id,
+                    ProfessorMail = assignment.Subject.ProfessorMail,
+                    Name = assignment.Subject.Name
+                }
             });
     }
 
@@ -70,9 +79,15 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = entity.Id,
-            Subject = entity.SubjectId,
             Description = entity.Description,
-            DeadLine = entity.DeadLine
+            Grade = entity.Grade,
+            DeadLine = entity.DeadLine,
+            Subject = new SubjectResponse()
+            {
+                Id = entity.Subject.Id,
+                ProfessorMail = entity.Subject.ProfessorMail,
+                Name = entity.Subject.Name
+            }
         };
     }
 
@@ -91,9 +106,15 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = entity.Id,
-            Subject = entity.SubjectId,
+            Grade = entity.Grade,
             Description = entity.Description,
-            DeadLine = entity.DeadLine
+            DeadLine = entity.DeadLine,
+            Subject = new SubjectResponse()
+            {
+                Id = entity.Subject.Id,
+                ProfessorMail = entity.Subject.ProfessorMail,
+                Name = entity.Subject.Name
+            }
         };
     }
     
@@ -109,7 +130,7 @@ public class AssignmentsController : ControllerBase
         }
 
         entity.Updated = DateTime.UtcNow;
-        entity.SubjectId = request.Subject;
+        entity.Grade = request.Grade;
         entity.Description = request.Description;
         entity.DeadLine = request.DeadLine;
 
@@ -118,13 +139,15 @@ public class AssignmentsController : ControllerBase
         return new AssignmentResponse
         {
             Id = entity.Id,
-            Subject = entity.SubjectId,
+            Grade = entity.Grade,
             Description = entity.Description,
-            DeadLine = entity.DeadLine
+            DeadLine = entity.DeadLine,
+            Subject = new SubjectResponse()
+            {
+                Id = entity.Subject.Id,
+                ProfessorMail = entity.Subject.ProfessorMail,
+                Name = entity.Subject.Name
+            }
         };
     }
-    // fct de delete si de update -> tema
-    //HttpDelete HttpPatch 
-    //delete cauta o variabila, dupa id o verifica si o sterge
-    //update are doi parametrii, unul de cautare si unul de update, primesti un request nou ca parametru, tema e bazata pe ultima functie
 }

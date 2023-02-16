@@ -1,10 +1,11 @@
 using Scula.Base;
+using Scula.Features.Subject.Models;
 
 namespace Scula.Features.Assignments.Models;
 
 public class AssignmentModel : Model
 {
-    public string SubjectId { get; set; }
+    public SubjectModel Subject { get; set; }
     public string Description { get; set; }
     
     public DateTime DeadLine { get; set; }
